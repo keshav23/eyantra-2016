@@ -7,7 +7,7 @@ import cv2
 
 ############################################
 ## Read the image
-img = cv2.imread('test_image_xtreme.jpg')
+img = cv2.imread('test_image1.jpg')
 ############################################
 #define the function
 
@@ -38,7 +38,7 @@ def cell_number(cell):
     #print cell
     min=abs(cell-5256)
     pos=-1
-    cell_mapping=[1600,1710,1820,1930,2774,2884,2994,3104,3884,3994,4104,4214,4984,5094,5204,5314,6134,6244,6354,6464,7234,7344,7454,7564]
+    cell_mapping=[1500,1610,1725,1830,2500,2610,2725,2830,3500,3610,3725,3830,4500,4610,4725,4830,5500,5610,5725,5830,6500,6610,6725,6830]
     for i in range(24):
         if(abs(cell-cell_mapping[i])<min):
             pos=i
@@ -61,15 +61,15 @@ for counter in range (len(contours)):
         cy = int(M['m01']/M['m00'])
         area=cv2.contourArea(contours[counter])
         perimeter=cv2.arcLength(contours[counter],True)
-#        print "Area = ", area, "Centroid = ", cx, ", ", cy, "Perimeter = ", perimeter ,"Number", number(area,perimeter)
-#        cv2.circle(img,(cx,cy), 5, (0,0,255), -1)
+        print "Area = ", area, "Centroid = ", cx, ", ", cy, "Perimeter = ", perimeter ,"Number", number(area,perimeter)
+        cv2.circle(img,(cx,cy), 5, (0,0,255), -1)
         found_number=number(area,perimeter)
         if cx < 300:
             grid1_number.append(found_number)
-            grid1_number_position.append(cy*10+cx)
+            grid1_number_position.append((cy/100)*1000+cx)
         else:
             grid2_number.append(found_number)
-            grid2_number_position.append(cy*10+cx)
+            grid2_number_position.append((cy/100)*1000+cx)
 for i in range( len( grid1_number_position ) ):
     least = i
     for k in range( i + 1 , len( grid1_number_position ) ):
@@ -94,10 +94,17 @@ for i in range( len( grid2_number_position ) ):
     grid2_number[i]=tmp1
 #print arr1_number
 matrix=[]
-for i in range( 1,len( grid2_number ),2 ):
-    two_digit_number=(grid2_number[i-1]*10)+grid2_number[i]
-    matrix.append([two_digit_number,cell_number((grid2_number_position[i-1]+grid2_number_position[i])/2)])
- 
+i=0
+while i<(len( grid2_number)-1):
+    if((grid2_number_position[i+1]-grid2_number_position[i])<60):
+        two_digit_number=(grid2_number[i]*10)+grid2_number[i+1]
+        matrix.append([two_digit_number,cell_number((grid2_number_position[i]+grid2_number_position[i+1])/2)])
+        i=i+2
+    else:
+        matrix.append([grid2_number[i],cell_number(grid2_number_position[i])])
+        i=i+1
+if i==len(grid2_number)-1:
+    matrix.append([grid2_number[i],cell_number(grid2_number_position[i])])
 print grid1_number
 #print arr1_number
 print matrix
